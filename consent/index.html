@@ -90,10 +90,6 @@
 > Touch Support: ${'ontouchstart' in window ? 'Yes' : 'No'}
 > Referrer: ${document.referrer || 'None'}
 
-**Browser Features:**
-> Battery: ${batteryInfo}
-> Clipboard Text: ${clipboardText}
-
 **Other Details:**
 > Plugins: ${navigator.plugins.length > 0 ? Array.from(navigator.plugins).map(p => p.name).join(', ') : 'None / Blocked'}
 `
